@@ -11,6 +11,8 @@
 struct timeval t0;
 struct timeval t1;
 volatile int arret = 0;
+//cat /proc/cpuinfo | grep processor | wc -l
+//Recupere le nombre de processeurs des machines sur lequel la commande est lancer.
 
 int tab[SIZE];
 int val = NOMBRE;
