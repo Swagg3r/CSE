@@ -37,23 +37,23 @@ void init(){
 
 void begin_read(sem_t s) {
 	//Debut de lecture.
-    P(lecture);
+    P(&lecture);
     nombre_lecteurs++;
     if (nombre_lecteurs == 1){
-    	P(ecriture); //Bloque les ecrivains.
+    	P(&ecriture); //Bloque les ecrivains.
     }
-    V(lecture);
+    V(&lecture);
     //Acces a la variable protégé.
 }
 
 void end_read(sem_t s) {
 	//Apres lecture de la variable en section critique.
-	P(lecture);
+	P(&lecture);
 	nombre_lecteurs--;
 	if (nombre_lecteurs == 0){
-		V(ecriture); //Debloque les ecrivains.
+		V(&ecriture); //Debloque les ecrivains.
 	}
-	V(lecture);
+	V(&lecture);
 	//Fin de la lecture.
 }
 
@@ -103,5 +103,6 @@ linked_list* remove(linked_list_head* list, int val) {
 
 int main (int argc, char* argv[]){
     nombre_lecteurs = 0;
+    //initialise les sempaphores.
     init();
 }
