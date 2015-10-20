@@ -21,6 +21,16 @@ int recherche(int val, int tab[SIZE]){
 	return -1;
 }
 
+/*int recherche_fin(int val, int tab[SIZE]){
+	int i;
+	for (i = SIZE-1; i >= SIZE/2; i--){
+		if (tab[i] == val){
+			return i;
+		}
+	}
+	return -1;
+}*/
+
 int main (int argc, char **argv){
 	int tab[SIZE];
 	int i, retour=-1;

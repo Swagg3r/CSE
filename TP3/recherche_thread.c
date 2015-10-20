@@ -20,22 +20,27 @@ int val = NOMBRE;
 void* recherche_debut(void *arg){
 	int i;
 	for (i = 0; i < SIZE/2 && arret == 0; i++){
+		//printf("Thread debut : arret = %d\n",arret);
 		if (tab[i] == val){
 			arret = 1;
 			pthread_exit((void*)i);
 		}
 	}
+	printf("Debut : i = %d et arret = %d\n",i,arret);
 	pthread_exit((void*)-1);
 }
 
 void* recherche_fin(void *arg){
 	int i;
 	for (i = SIZE-1; i >= SIZE/2 && arret == 0; i--){
+		//printf(" threaf fin, arret = %d\n",arret);
 		if (tab[i] == val){
 			arret = 1;
+			printf("Fin : i = %d et arret = %d\n",i,arret);
 			pthread_exit((void*)i);
 		}
 	}
+	printf("Fin : i = %d et arret = %d\n",i,arret);
 	pthread_exit((void*)-1);
 }
 
