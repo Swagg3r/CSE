@@ -1,5 +1,4 @@
 //Monnet-Paquet & Thebaud
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,6 +7,14 @@
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+#define P sem_wait
+#define V sem_post
+#define LECTEURS 5
+
+sem_t ecriture;
+sem_t lecture;
+int nombre_lecteurs;
 
 typedef struct linked_list {
     int nb;
@@ -23,20 +30,39 @@ typedef struct linked_list_head {
     linked_list *head;
 } linked_list_head;
 
+void init(){
+	sem_init(&ecriture, 0, 1);
+    sem_init(&lecture, 0, LECTEURS);
+}
+
 void begin_read(sem_t s) {
-    //ToDo
+	//Debut de lecture.
+    P(lecture);
+    nombre_lecteurs++;
+    if (nombre_lecteurs == 1){
+    	P(ecriture); //Bloque les ecrivains.
+    }
+    V(lecture);
+    //Acces a la variable protégé.
 }
 
 void end_read(sem_t s) {
-  //ToDo
+	//Apres lecture de la variable en section critique.
+	P(lecture);
+	nombre_lecteurs--;
+	if (nombre_lecteurs == 0){
+		V(ecriture); //Debloque les ecrivains.
+	}
+	V(lecture);
+	//Fin de la lecture.
 }
 
 void begin_write(sem_t s) {
-    //ToDo
+    P(&ecriture);
 }
 
 void end_write(sem_t s) {
-    //ToDo
+    V(&ecriture);
 }
 
 void list_init(linked_list_head *list) {
@@ -76,5 +102,6 @@ linked_list* remove(linked_list_head* list, int val) {
 }
 
 int main (int argc, char* argv[]){
-    //ToDo
+    nombre_lecteurs = 0;
+    init();
 }
