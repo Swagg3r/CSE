@@ -1,0 +1,37 @@
+Pour chaque test, recuperer la moyenne des valeurs relevées.
+
+-----------------------
+1 er test*20 :
+Taille du vecteur a 1M.
+Nb Threads : 4
+
+VS
+
+Sequentiel
+-----------------------
+
+
+------------------------------
+2 eme test*20 :
+Taille : 1m
+Nb Threads : 8
+
+VS Sequentiel + Nb thread 4.
+------------------------------
+
+------------------------------
+3 eme test*20 :
+Taille : 1m
+Nb Threads : 16
+
+VS Sequentiel + Nb thread 4 + Nb thread 8.
+------------------------------
+
+-----------------------------------------------------------
+4 eme test*20 : 
+Restreindre le nombre de coeurs utilisé pour les threads.
+Nb threads > nb coeurs.
+-----------------------------------------------------------
+
+
+opt : Trouver la limite du vecteur pour passer de sequentiel a multi threader ?

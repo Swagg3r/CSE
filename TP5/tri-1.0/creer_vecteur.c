@@ -4,6 +4,11 @@
 #include <time.h>
 #include <getopt.h>
 
+/*
+Commande:	make CFLAGS=-Wall
+			taskset <mask> ./prog
+*/
+
 void usage(char *commande) {
     fprintf(stderr, "Usage :\n");
     fprintf(stderr, "%s [ --seed number ] [ --size number ] [ --min value ] "

@@ -45,8 +45,8 @@ void traitement_resultats(int parallelism, arguments_t *args) {
         memcpy(args->tableau, resultat, sizeof(int)*args->taille);
     }
 
-    affiche("Tableau trie :\n");
+    /*affiche("Tableau trie :\n");
     for (i=0; i<args->taille; i++)
         affiche("%d ", args->tableau[i]);
-    affiche("\n");
+    affiche("\n");*/
 }

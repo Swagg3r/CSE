@@ -83,6 +83,8 @@ int main(int argc, char *argv[]) {
     for (i=0; i<taille; i++)
         scanf(" %d", &tableau[i]);
 
+    printf("Nombre de Threads = [%d]\n",parallelism);
+    printf("Taille du vecteur = [%d]\n",taille);
     /* Recuperation du temps systeme */
     gettimeofday(&debut, NULL);
 
