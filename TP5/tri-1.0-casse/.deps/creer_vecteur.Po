@@ -1,0 +1,3 @@
+creer_vecteur.o: creer_vecteur.c /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:
