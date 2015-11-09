@@ -1,5 +1,5 @@
-temps.o: temps.c /usr/include/stdc-predef.h \
- /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/features.h \
+temps.o: temps.c /usr/include/x86_64-linux-gnu/sys/time.h \
+ /usr/include/features.h /usr/include/x86_64-linux-gnu/bits/predefs.h \
  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
@@ -11,11 +11,11 @@ temps.o: temps.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/select.h \
  /usr/include/x86_64-linux-gnu/bits/sigset.h temps.h
 
-/usr/include/stdc-predef.h:
-
 /usr/include/x86_64-linux-gnu/sys/time.h:
 
 /usr/include/features.h:
+
+/usr/include/x86_64-linux-gnu/bits/predefs.h:
 
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
