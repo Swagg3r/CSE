@@ -1,0 +1,144 @@
+
+
+Lancement de tri_sequentiel --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 1 : Squentiel avec taille = 100k
+Temp moyen gloabl en mode sequentielle avec 100k de données : [11623.05]
+Temp moyen CPU en mode sequentielle avec 100k de données : [11595.95]
+Temp moyen CPU user en mode sequentielle avec 100k de données : [11378.3]
+Temp moyen CPU system en mode sequentielle avec 100k de données : [217.65]
+
+
+Lancement du test2 : tri_threads --parallelism 2 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 2 : 2 threads avec taille = 100k
+Temp moyen gloabl en mode sequentielle avec 100k de données : [15106.05]
+Temp moyen CPU en mode sequentielle avec 100k de données : [26872.35]
+Temp moyen CPU user en mode sequentielle avec 100k de données : [25750.1]
+Temp moyen CPU system en mode sequentielle avec 100k de données : [1122.25]
+
+
+Lancement du test3 : tri_threads --parallelism 4 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 3 : 4 threads avec taille = 100k
+Temp moyen gloabl en mode sequentielle avec 100k de données : [12547.65]
+Temp moyen CPU en mode sequentielle avec 100k de données : [28994.4]
+Temp moyen CPU user en mode sequentielle avec 100k de données : [26957.65]
+Temp moyen CPU system en mode sequentielle avec 100k de données : [2036.75]
+
+
+Lancement du test4 : tri_threads --parallelism 8 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 4 : 8 threads avec taille = 100k
+Temp moyen gloabl en mode sequentielle avec 100k de données : [15451.6]
+Temp moyen CPU en mode sequentielle avec 100k de données : [33309.6]
+Temp moyen CPU user en mode sequentielle avec 100k de données : [29359.95]
+Temp moyen CPU system en mode sequentielle avec 100k de données : [3949.65]
+
+
+Lancement de tri_sequentiel --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 5 : Squentiel avec taille = 400k
+Temp moyen gloabl en mode sequentielle avec 400k de données : [44257.7]
+Temp moyen CPU en mode sequentielle avec 400k de données : [44211.65]
+Temp moyen CPU user en mode sequentielle avec 400k de données : [43560.25]
+Temp moyen CPU system en mode sequentielle avec 400k de données : [651.4]
+
+
+Lancement du test6 : tri_threads --parallelism 2 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 6 : 2 threads avec taille = 400k
+Temp moyen gloabl en mode sequentielle avec 400k de données : [36336.2]
+Temp moyen CPU en mode sequentielle avec 400k de données : [63016.15]
+Temp moyen CPU user en mode sequentielle avec 400k de données : [61046.05]
+Temp moyen CPU system en mode sequentielle avec 400k de données : [1970.1]
+
+
+Lancement du test7 : tri_threads --parallelism 4 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 7 : 4 threads avec taille = 400k
+Temp moyen gloabl en mode sequentielle avec 400k de données : [35894.05]
+Temp moyen CPU en mode sequentielle avec 400k de données : [89111.15]
+Temp moyen CPU user en mode sequentielle avec 400k de données : [86042.35]
+Temp moyen CPU system en mode sequentielle avec 400k de données : [3068.8]
+
+
+Lancement du test8 : tri_threads --parallelism 8 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 8 : 8 threads avec taille = 400k
+Temp moyen gloabl en mode sequentielle avec 400k de données : [36953.15]
+Temp moyen CPU en mode sequentielle avec 400k de données : [108589.5]
+Temp moyen CPU user en mode sequentielle avec 400k de données : [103377]
+Temp moyen CPU system en mode sequentielle avec 400k de données : [5212.5]
+
+
+Lancement du test9 : tri_sequentiel --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 9 : Sequentiel avec taille = 700k
+Temp moyen gloabl en mode sequentielle avec 700k de données : [78512.65]
+Temp moyen CPU en mode sequentielle avec 700k de données : [78423.4]
+Temp moyen CPU user en mode sequentielle avec 700k de données : [77419.3]
+Temp moyen CPU system en mode sequentielle avec 700k de données : [1004.1]
+
+
+Lancement du test10 : tri_threads --parallelism 2 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 10 : 2 threads avec taille = 700k
+Temp moyen gloabl en mode sequentielle avec 700k de données : [60783]
+Temp moyen CPU en mode sequentielle avec 700k de données : [106935.65]
+Temp moyen CPU user en mode sequentielle avec 700k de données : [103971.65]
+Temp moyen CPU system en mode sequentielle avec 700k de données : [2964]
+
+
+Lancement du test11 : tri_threads --parallelism 4 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 11 : 4 threads avec taille = 700k
+Temp moyen gloabl en mode sequentielle avec 700k de données : [55372]
+Temp moyen CPU en mode sequentielle avec 700k de données : [142577.05]
+Temp moyen CPU user en mode sequentielle avec 700k de données : [138415.5]
+Temp moyen CPU system en mode sequentielle avec 700k de données : [4161.55]
+
+
+Lancement du test12 : tri_threads --parallelism 8 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 12 : 8 threads avec taille = 700k
+Temp moyen gloabl en mode sequentielle avec 700k de données : [55811.4]
+Temp moyen CPU en mode sequentielle avec 700k de données : [170127.65]
+Temp moyen CPU user en mode sequentielle avec 700k de données : [164412.85]
+Temp moyen CPU system en mode sequentielle avec 700k de données : [5714.8]
+
+
+Lancement de tri_sequentiel --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 13 : Squentiel avec taille = 1M
+Temp moyen gloabl en mode sequentielle avec 1M de données : [116112.15]
+Temp moyen CPU en mode sequentielle avec 1M de données : [115988.25]
+Temp moyen CPU user en mode sequentielle avec 1M de données : [114456.6]
+Temp moyen CPU system en mode sequentielle avec 1M de données : [1531.65]
+
+
+Lancement du test14 : tri_threads --parallelism 2 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 14 : 2 threads avec taille = 1M
+Temp moyen gloabl en mode sequentielle avec 1M de données : [91556.45]
+Temp moyen CPU en mode sequentielle avec 1M de données : [162919.3]
+Temp moyen CPU user en mode sequentielle avec 1M de données : [158754.4]
+Temp moyen CPU system en mode sequentielle avec 1M de données : [4164.9]
+
+
+Lancement du test15 : tri_threads --parallelism 4 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 15 : 4 threads avec taille = 1M
+Temp moyen gloabl en mode sequentielle avec 1M de données : [75458.4]
+Temp moyen CPU en mode sequentielle avec 1M de données : [191915.65]
+Temp moyen CPU user en mode sequentielle avec 1M de données : [186974.95]
+Temp moyen CPU system en mode sequentielle avec 1M de données : [4940.7]
+
+
+Lancement du test16 : tri_threads --parallelism 8 --quiet --time --rusage <vecteur.txt >>retour.txt
+Test in progress ... Wait please
+Resultat Test 16 : 8 threads avec taille = 1M
+Temp moyen gloabl en mode sequentielle avec 1M de données : [77683.4]
+Temp moyen CPU en mode sequentielle avec 1M de données : [234400.4]
+Temp moyen CPU user en mode sequentielle avec 1M de données : [227843.75]
+Temp moyen CPU system en mode sequentielle avec 1M de données : [6556.65]
