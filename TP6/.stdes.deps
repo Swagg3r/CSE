@@ -1,0 +1,1 @@
+.stdes.deps stdes.o: stdes.c stdes.h
