@@ -1,8 +1,9 @@
 #include "stdes.h"
 #include "errno.h"
-//#include <stdio.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -22,7 +23,9 @@ typedef struct _ES_FICHIER {
 	int index;
 } FICHIER;
 
-FICHIER tab_fichier[NB_FILE] = NULL;
+static const FICHIER emptyFile;
+
+FICHIER tab_fichier[NB_FILE];
 
 
 /* OUVRIR */
@@ -46,7 +49,7 @@ FICHIER* ouvrir(char *nom, char mode){
 
 	//Recherche d'une place dans le tableau de FICHIER
 	int i = 0;
-	while(tab_fichier[i] != NULL) {
+	while(tab_fichier[i].buffer != NULL) {
 		i++;
 	}
 	if (i == NB_FILE) {
@@ -56,7 +59,7 @@ FICHIER* ouvrir(char *nom, char mode){
 	} else {
 		//La place i est libre.
 		f->index = i;
-		tab_fichier[i] = f;
+		tab_fichier[i] = *f;
 	}
 
 	return f;
@@ -80,7 +83,7 @@ int fermer(FICHIER* f) {
 	}
 	int check_c = close(f->filedesc);
 	//Libere le tableau de la struct.
-	tab_fichier[f->index] = NULL;
+	tab_fichier[f->index] = emptyFile;
 	//Free de la struct.
 	free(f);
 	return check_c;
@@ -103,9 +106,12 @@ int lire(void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) {
 			//Cas normal.
 			return res;
 		}
-		//On place en memoire la lecture demandée.
-		//strcpy(p,f->buffer[f->pos + (taille * nbelem)]);
-		memcpy ( p, f->buffer[f->pos + (taille * nbelem)], strlen()+1 );
+		//On place en memoire (pointé par l'utilisateur) la lecture demandée.
+
+		//*(char*)p = f->buffer[f->pos];
+		//*(char*)p = *((char *)f->buffer)[f->pos];
+		strncpy((char*) p, f->buffer+f->pos, taille*nbelem);
+		//memcpy ( p, f->buffer[f->pos], taille * nbelem);
 		//On decale la posotion de lecture dans le buffer.
 		f->pos += (taille * nbelem);
 		//Si l'utilisateur a lut tout le buffer on le recharge.
@@ -130,7 +136,7 @@ int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) 
 		//On est dans le bon mode.
 		//Ajout dans le buffer du contenu pointé par p.
 		//strcpy(f->buffer[f->pos+1],p);
-		memcpy ( buffer, p, strlen()+1 );
+		memcpy ( f->buffer, p, taille * nbelem);
 		//Verification du remplissage du buffer.
 		f->pos += (taille * nbelem);
 		if (f->pos >= 4096){
@@ -141,10 +147,8 @@ int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) 
 			//Verifier le debordement du buffer.
 
 			//Return de la taille ecrite dans le buffer.
-			return (taille * nbelem);
 		}
-	} else {
-		//On est pas dans le bon mode, return -1.
-		return -1;
+		return (taille * nbelem);
 	}
+	return -1;
 }
