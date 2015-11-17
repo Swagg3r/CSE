@@ -1,6 +1,6 @@
 # Flags de compilation
 CC=gcc
-CFLAGS= -Wall
+CFLAGS= -Wall -g
 LDFLAGS=
  
 # Exécutables

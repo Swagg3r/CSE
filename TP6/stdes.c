@@ -23,9 +23,8 @@ typedef struct _ES_FICHIER {
 	int index;
 } FICHIER;
 
-static const FICHIER emptyFile;
-
 FICHIER tab_fichier[NB_FILE];
+int tab_verif[NB_FILE];
 
 
 /* OUVRIR */
@@ -49,7 +48,10 @@ FICHIER* ouvrir(char *nom, char mode){
 
 	//Recherche d'une place dans le tableau de FICHIER
 	int i = 0;
-	while(tab_fichier[i].buffer != NULL) {
+	/*while(tab_fichier[i].index != 0) {
+		i++;
+	}*/
+	while(tab_verif[i] != 0) {
 		i++;
 	}
 	if (i == NB_FILE) {
@@ -60,6 +62,7 @@ FICHIER* ouvrir(char *nom, char mode){
 		//La place i est libre.
 		f->index = i;
 		tab_fichier[i] = *f;
+		tab_verif[i] = 1;
 	}
 
 	return f;
@@ -70,6 +73,7 @@ FICHIER* ouvrir(char *nom, char mode){
 /* FERMER */
 // return 0 if success, -1 if error
 int fermer(FICHIER* f) {
+	printf("fonction de fermeture\n");
 	//Ecrire dans le fichier si il reste des données dans le buffer. En mode ecriture.
 	if (f->mode == 'E') {
 		int check_w = write(f->filedesc, f->buffer, f->pos);
@@ -83,46 +87,43 @@ int fermer(FICHIER* f) {
 	}
 	int check_c = close(f->filedesc);
 	//Libere le tableau de la struct.
-	tab_fichier[f->index] = emptyFile;
+	tab_verif[f->index] = 0;
+	//tab_fichier[f->index] = -1;
 	//Free de la struct.
 	free(f);
+	printf("exit fermeture\n");
 	return check_c;
 }
 
 /* LIRE */
 // return le nombre d'octets lus si succes, -1 si erreur.
 int lire(void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) {
+	printf("fonction lire\n");
+	int res;
 	if (f->mode == 'L'){
 		//On est dans le bon mode.
 		//Chargement initial du buffer.
-		int res = read(f->filedesc, f->buffer, TAILLE);
-		if (res == 0) {
-			//fin de fichier atteinte
-			return 0;
-		} else if (res == -1) {
-			//verifier errno
-			return -1;
-		} else {
-			//Cas normal.
-			return res;
-		}
-		//On place en memoire (pointé par l'utilisateur) la lecture demandée.
-
-		//*(char*)p = f->buffer[f->pos];
-		//*(char*)p = *((char *)f->buffer)[f->pos];
-		strncpy((char*) p, f->buffer+f->pos, taille*nbelem);
-		//memcpy ( p, f->buffer[f->pos], taille * nbelem);
-		//On decale la posotion de lecture dans le buffer.
-		f->pos += (taille * nbelem);
-		//Si l'utilisateur a lut tout le buffer on le recharge.
-		if (f->pos >= 4096){
+		if (f->pos == 0 || f->pos >= 4096){
 			res = read(f->filedesc, f->buffer, TAILLE);
-			if (res == 4096){
+			if (res <= 4096){
+				//Mettre un champ pos max pour simuler une fin de fichier.
 				f->pos = 0;
 			} else {
 				//printf("Erreur relecture.\n");
 			}
 		}
+		//On place en memoire (pointé par l'utilisateur) la lecture demandée.
+
+		//*(char*)p = f->buffer[f->pos];
+		//*(char*)p = *((char *)f->buffer)[f->pos];
+		printf("buffer = %s\n",f->buffer+f->pos);
+		strncpy((char*) p, f->buffer+f->pos, taille*nbelem);
+		//memcpy ( p, f->buffer[f->pos], taille * nbelem);
+		//On decale la posotion de lecture dans le buffer.
+		printf("pos = %d\n", f->pos);
+		f->pos += (taille * nbelem);
+		return nbelem*taille;
+		//Si l'utilisateur a lut tout le buffer on le recharge.
 		//verifier position structure
 	} else {
 		return -1;
@@ -132,11 +133,14 @@ int lire(void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) {
 /* ECRIRE */
 //return le nombre d'octets ecrit.
 int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) {
+	printf("fonction ecrire\n");
 	if (f->mode == 'E'){
+		printf("mode ok E\n");
 		//On est dans le bon mode.
 		//Ajout dans le buffer du contenu pointé par p.
 		//strcpy(f->buffer[f->pos+1],p);
-		memcpy ( f->buffer, p, taille * nbelem);
+		strncpy(f->buffer+f->pos, (char*) p, taille*nbelem);
+		//memcpy ( f->buffer, p, taille * nbelem);
 		//Verification du remplissage du buffer.
 		f->pos += (taille * nbelem);
 		if (f->pos >= 4096){
@@ -148,6 +152,7 @@ int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) 
 
 			//Return de la taille ecrite dans le buffer.
 		}
+		printf("return %d \n", taille*nbelem);
 		return (taille * nbelem);
 	}
 	return -1;
