@@ -4,7 +4,6 @@
 
 int main(int argc, char *argv[])
 {
-	printf("-------------------------------------------------------------------------------------------------------------------\n");
 	FICHIER *f1;
 	FICHIER *f2;
 	char c;
@@ -16,15 +15,12 @@ int main(int argc, char *argv[])
 	if (f1 == NULL)
 		exit (-1);
 
-	printf("ouvrir 1 ok\n");
 	f2 = ouvrir (argv[2], 'E');
 	if (f2 == NULL)
 		exit (-1);
 
-	printf("ouvrir 2 ok\n");
 	while (lire (&c, 1, 1, f1) == 1) {
 		ecrire (&c, 1, 1, f2);
-		printf("ecrire ok\n");
 	}
 
 	fermer (f1);
