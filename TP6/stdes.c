@@ -31,6 +31,9 @@ int tab_verif[NB_FILE];
 /* OUVRIR */
 // Return l'adresse de la structure ou NULL si probleme.
 FICHIER* ouvrir(char *nom, char mode){
+
+	printf("nom=%s\n", nom);
+
 	//Creation de la structure dans le TAS.
 	FICHIER *f = malloc(sizeof(FICHIER));
 	//Initialisation des champs de le structure.
@@ -168,28 +171,32 @@ int fecriref(FICHIER* f, char* format, ...) {
 
 	int i = 0;
 	while(*(format+i) != '\0') {
-		printf("loop=%d\n", i);
-		switch(*(format+i)) {
-			case '%' :
-				i++;
-				if(*(format+i) == 'c') {
+		//printf("loop=%d\n", i);
+		if (*(format+i) == '%') {
+			i++;
+			switch(*(format+i)) {
+				case 'c' : {
 					int c = va_arg(ap, int);
 					ecrire(&c, sizeof(char), 1, f);
-				} else if(*(format+i) == 'd') {
+					break;
+				}
+				case 'd' : {
 					int d = va_arg(ap, int);
+					printf("int detected (value=%d)\n", d);
 					ecrire(&d, sizeof(int), 1, f);
-				} else if(*(format+i) == 's') {
+					break;
+				}
+				case 's' : {
 					char* s = va_arg(ap, char*);
 					ecrire(s, strlen(s), 1, f);
+					break;
 				}
-				break;
-			default : 
-				ecrire(format+i, sizeof(char), 1, f);
-				break;
+			}
+		} else { 
+			ecrire(format+i, sizeof(char), 1, f);
 		}
 		i++;
 	}
-
 	va_end(ap);
 
 	return 0;
