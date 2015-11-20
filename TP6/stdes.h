@@ -8,6 +8,7 @@ FICHIER *ouvrir(char *nom, char mode);
 int fermer(FICHIER*f);
 int lire(void *p, unsigned int taille, unsigned int nbelem, FICHIER *f);
 int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f);
+int fecriref(FICHIER* f,char* format, ...)__attribute__((format(printf,2,3)));
 
 #endif
 

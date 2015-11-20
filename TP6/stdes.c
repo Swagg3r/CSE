@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <stdarg.h>
 
 #define TAILLE 4096
 #define LECTURE O_RDONLY
@@ -38,10 +38,10 @@ FICHIER* ouvrir(char *nom, char mode){
 	f->pos_max = 0;
 	f->mode = mode;
 	//Initialisation du buffer.
-	int j = 0;
-	for (j = 0; j < TAILLE; j++){
-		f->buffer[j] = '0';
-	}
+	// int j = 0;
+	// for (j = 0; j < TAILLE; j++){
+	// 	f->buffer[j] = '0';
+	// }
 
 	//Test du mode d'ouverture pour l'AS open.
 	if (mode == 'L') {
@@ -72,18 +72,19 @@ FICHIER* ouvrir(char *nom, char mode){
 	return f;
 }
 
-
-
 /* FERMER */
 // return 0 if success, -1 if error
 int fermer(FICHIER* f) {
+	printf("bonjour je veux fermer. buffer=\"%s\"\n", f->buffer);
 	//Ecrire dans le fichier si il reste des données dans le buffer. En mode ecriture.
 	if (f->mode == 'E') {
+		//todo : gestion d'erreur
 		int check_w = write(f->filedesc, f->buffer, f->pos);
 		if (check_w == -1) {
-			if(errno == EINTR) {
-				check_w = write(f->filedesc, f->buffer, f->pos);
-			}
+			perror("erreur write");
+			// if(errno == EINTR) {
+			// 	check_w = write(f->filedesc, f->buffer, f->pos);
+			// }
 		} else if (check_w != f->pos) {
 			check_w = write(f->filedesc, f->buffer + check_w, f->pos - check_w);
 		}
@@ -138,6 +139,7 @@ int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) 
 		//On est dans le bon mode.
 		//Ajout dans le buffer du contenu pointé par p.
 		strncpy(f->buffer+f->pos, (char*) p, taille*nbelem);
+		printf("buffer=\"%s\"\n", f->buffer);
 		//Verification du remplissage du buffer.
 		f->pos += (taille * nbelem);
 		//Si le buffer est plein : 
@@ -156,4 +158,45 @@ int ecrire(const void *p, unsigned int taille, unsigned int nbelem, FICHIER *f) 
 		return (taille * nbelem);
 	}
 	return -1;
+}
+
+/* FECRIREF */
+// equivalent maison de fprintf (version gitan 2.4)
+int fecriref(FICHIER* f, char* format, ...) {
+	va_list ap;	//structure interne au compilateur pour savoir ou il en est.
+	va_start(ap, format); //Il faut lui donner le dernier parametre connu avant les "..." a savoir format.
+
+	int i = 0;
+	while(*(format+i) != '\0') {
+		printf("loop=%d\n", i);
+		switch(*(format+i)) {
+			case '%' :
+				i++;
+				if(*(format+i) == 'c') {
+					int c = va_arg(ap, int);
+					ecrire(&c, sizeof(char), 1, f);
+				} else if(*(format+i) == 'd') {
+					int d = va_arg(ap, int);
+					ecrire(&d, sizeof(int), 1, f);
+				} else if(*(format+i) == 's') {
+					char* s = va_arg(ap, char*);
+					ecrire(s, strlen(s), 1, f);
+				}
+				break;
+			default : 
+				ecrire(format+i, sizeof(char), 1, f);
+				break;
+		}
+		i++;
+	}
+
+	va_end(ap);
+
+	return 0;
+}
+
+/* FLIREF */
+// . . . . . . . . . . . . . . .
+int fliref(FICHIER* f,char* format, ...) {
+	return 0;
 }
