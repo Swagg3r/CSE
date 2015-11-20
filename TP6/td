@@ -1,0 +1,17 @@
+//http://codes-sources.commentcamarche.net/faq/877-les-fonctions-a-nombre-variable-d-arguments
+#include <stdarg.h>
+int fecriref(FICHIER* f,char* format, ...)__attribute__((format(printf,2,3)));
+
+int fecriref(FICHIER* f,char* format, ...){
+	va_list ap;//structure interne au compilateur pour savoir ou il est.
+	va_start(ap,format); //Il faut lui donner le dernier parametre connu avant les "..." a savoir format.
+	int v = va_arg(ap, int);
+	//double d = va_arg(ap, double);//double est le type de ce que lon veut extraire.
+	switch(){
+		case %s : 
+			char* s = va_arg(ap, char *);
+	}
+
+
+	va_end(ap);
+}
