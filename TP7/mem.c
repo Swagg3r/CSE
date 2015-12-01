@@ -1,6 +1,15 @@
 //Antoine Thebaud & Aurelien Monnet-Paquet
 #include <mem.h>
-#include <stdio.h>
+// #include <mem.h>
+// #include "errno.h"
+// #include <stdio.h>
+// #include <unistd.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <sys/types.h>
+// #include <sys/stat.h>
+// #include <fcntl.h>
+// #include <stdarg.h>
 
 #define ALIGNEMENT sizeof(void*)
 #define METASIZE sizeof(size_t)
@@ -248,14 +257,14 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
     }
   }
 
-  //ecritation dans le fichier
+  //ecritation dans le fichier : WORKS
   FILE* f = fopen("stats.txt","a");
   fwrite("fragmentation = ", 1, 16, f);
-  fwrite(&fragmentation, 1, sizeof(int), f);
+  print_int(f, fragmentation);
   fwrite("/ occupation = ", 1, 15, f);
-  fwrite(&occupation, 1, sizeof(int), f);
+  print_int(f, occupation);
   fwrite("/ accumulation = ", 1, 17, f);
-  fwrite(&accumulation, 1, sizeof(int), f);
+  print_int(f, accumulation);
   fwrite("\n", 1, 1, f);
   fclose(f);
 }
@@ -322,4 +331,19 @@ void calculation(void* zone, size_t size, int free) {
     occupation -= size;
   }
   accumulation += size;
+}
+
+void print_int(FILE* f, int nb) {
+  if (nb < 0){
+    fwrite("-", 1, 1, f);
+    nb *= -1;
+  }
+  if (nb > 9){
+    print_int(f, nb / 10);
+    print_int(f, nb % 10);
+  }
+  else{
+    nb += '0';
+    fwrite(&nb, 1, 1, f);
+  }
 }

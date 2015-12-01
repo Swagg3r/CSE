@@ -1,6 +1,7 @@
 #ifndef __MEM_H
 #define __MEM_H
 #include <stddef.h>
+#include <stdio.h>
 
 struct fb;
 
@@ -23,5 +24,7 @@ struct fb* mem_fit_best(struct fb*, size_t);
 struct fb* mem_fit_worst(struct fb*, size_t);
 
 void calculation(void* zone, size_t size, int free);
+
+void print_int(FILE* f, int nb);
 
 #endif
