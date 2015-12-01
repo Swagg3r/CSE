@@ -131,6 +131,8 @@ void* mem_alloc(size_t size_alloc) {
 
   if(DEBUG) { printf("=======================================\n"); }
 
+  mem_show(calculation);
+
   return ptr_alloc;
 }
 
@@ -247,13 +249,13 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
   }
 
   //ecritation dans le fichier
-  FILE* f = fopen("stats","a");
+  FILE* f = fopen("stats.txt","a");
   fwrite("fragmentation = ", 1, 16, f);
-  fwrite(fragmentation, 1, sizeof(int), f);
+  fwrite(&fragmentation, 1, sizeof(int), f);
   fwrite("/ occupation = ", 1, 15, f);
-  fwrite(occupation, 1, sizeof(int), f);
+  fwrite(&occupation, 1, sizeof(int), f);
   fwrite("/ accumulation = ", 1, 17, f);
-  fwrite(accumulation, 1, sizeof(int), f);
+  fwrite(&accumulation, 1, sizeof(int), f);
   fwrite("\n", 1, 1, f);
   fclose(f);
 }
@@ -316,6 +318,8 @@ void calculation(void* zone, size_t size, int free) {
   }
   if (!free) {
     occupation += size;
+  } else {
+    occupation -= size;
   }
   accumulation += size;
 }
