@@ -140,6 +140,7 @@ void* mem_alloc(size_t size_alloc) {
 
   if(DEBUG) { printf("=======================================\n"); }
 
+  accumulation += size_alloc;
   mem_show(calculation);
 
   return ptr_alloc;
@@ -228,6 +229,8 @@ void mem_free(void* zone) {
   }
 
   if(DEBUG) { printf("=======================================\n"); }
+
+  mem_show(calculation);
 }
 
 size_t mem_get_size(void* zone) {
@@ -248,11 +251,11 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
   while ((void*) ptr < ptr_last) {
 
     if ((void*) ptr == ptr_zl) {
-      print((void*) ptr, ptr->size, 1);
+      print((void*) ptr, ptr->size, 1);//zone libre
       ptr_zl = ptr_zl->next;
       ptr = (fb*) ((void*) ptr + ptr->size);
     } else {
-      print((void*) ptr, *((size_t*)ptr), 0);
+      print((void*) ptr, *((size_t*)ptr), 0);//zone occupée 
       ptr = (fb*) ((void*) ptr + *((size_t*)ptr));
     }
   }
@@ -327,10 +330,7 @@ void calculation(void* zone, size_t size, int free) {
   }
   if (!free) {
     occupation += size;
-  } else {
-    occupation -= size;
   }
-  accumulation += size;
 }
 
 void print_int(FILE* f, int nb) {
