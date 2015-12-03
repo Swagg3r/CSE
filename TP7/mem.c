@@ -1,4 +1,6 @@
 //Antoine Thebaud & Aurelien Monnet-Paquet
+#define _GNU_SOURCE
+
 #include <mem.h>
 #include <pthread.h>
 
@@ -6,7 +8,7 @@
 #define METASIZE sizeof(size_t)
 #define align(val) (((val) + ALIGNEMENT-1) &~ (ALIGNEMENT-1))
 #define DEBUG 0
-#define DEBORDEMENT 0xD34DB33F
+// #define DEBORDEMENT 0xD34DB33F
 
 typedef struct fb { /* fb pour free block */
   size_t size ;
@@ -23,7 +25,7 @@ void* ptr_last;
 mem_fit_function_t* active_fit_fonction;
 
 //mutex
-pthread_mutex_t mutex;
+pthread_mutex_t mutex=PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 //variables pour calculation()
 int fragmentation; // taille jusqu'au dernier bloc occupé
@@ -61,11 +63,14 @@ void* mem_alloc(size_t size_alloc) {
     size_alloc += METASIZE;
     //2) alignement
     size_alloc = align(size_alloc);
+    // //3) zone de débordement
+    // size_alloc += 8;
 
     //recherche d'une zone libre selon la stratégie d'allocation choisie
     ptr_alloc = (*active_fit_fonction)(ptr_alloc, size_alloc);
     if (ptr_alloc == NULL) {
         printf("Allocation impossible\n");
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
@@ -123,6 +128,11 @@ void* mem_alloc(size_t size_alloc) {
 
     //écrit la taille de l'espace mémoire réservé avant celui-ci
     *((size_t*) ptr_alloc) = size_alloc;
+
+    // //écrit DEBORDEMENT à la fin de la zone réservée
+    // int* ptr_debordement = (int*) ((void*) ptr_alloc + size_alloc - sizeof(int));
+    // *ptr_debordement = DEBORDEMENT; 
+
     //décale ptr_alloc sur la premiere case de l'espace réservé (=valeur de retour)
     ptr_alloc = (fb*) ((void*) ptr_alloc + METASIZE);
 
@@ -141,6 +151,10 @@ void mem_free(void* zone) {
     //décale pointeur vers l'arrière pour récupérer les métadonnées
     fb* ptr_free = (fb*) (zone - METASIZE);
     ptr_free->size = *((size_t*) ptr_free);
+
+    // //vérifie si il n'y a pas eu de débordement
+    // int* ptr_debordement = (int*) ((void*) ptr_alloc + ptr_free->size - sizeof(int));
+
 
     if(ptr_free < ptr_init) {
 	    //cas 1 : ptr_free < ptr_init = ptr_free devient le nouveau ptr_init
@@ -232,16 +246,21 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
         }
     }
 
-    //ecritation dans le fichier : WORKS
-    FILE* f = fopen("stats.txt","a");
-    print_int(f, accumulation);
-    fwrite("\t", 1, 1, f);
-    print_int(f, occupation);
-    fwrite("\t", 1, 1, f);
-    print_int(f, fragmentation);
-    fwrite("\n", 1, 1, f);
-    fclose(f);
-}
+    static int in_mem_show = 0;
+    if (in_mem_show == 0) {
+        in_mem_show = 1;
+        //ecritation dans le fichier : WORKS
+        FILE* f = fopen("stats.txt","a");
+        print_int(f, accumulation);
+        fwrite("\t", 1, 1, f);
+        print_int(f, occupation);
+        fwrite("\t", 1, 1, f);
+        print_int(f, fragmentation);
+        fwrite("\n", 1, 1, f);
+        fclose(f);
+        in_mem_show = 0;
+    }
+ }
 
 /* Choix de la strategie */
 void mem_fit(mem_fit_function_t* fit_function) {
@@ -250,19 +269,9 @@ void mem_fit(mem_fit_function_t* fit_function) {
 
 /* First fit */
 fb* mem_fit_first(fb* ptr, size_t size) {
-    if(DEBUG && ptr != NULL) { 
-        printf("mff1 : ptr=%lu;\n", (unsigned long) ptr);
-        printf("mff1 : ptr->next=%lu;\n", (unsigned long) ptr->next); 
-        printf("mff1 : ptr->size=%d\n", (int) ptr->size); 
-    }
     //Tant que la zone libre testée n'est pas assez grande on en cherche une autre.
     while (ptr != NULL && ptr->size < size) {
         ptr = ptr->next;
-    }
-    if(DEBUG && ptr != NULL) { 
-        printf("mff2 : ptr=%lu;\n", (unsigned long) ptr);
-        printf("mff2 : ptr->next=%lu;\n", (unsigned long) ptr->next); 
-        printf("mff2 : ptr->size=%d\n", (int) ptr->size); 
     }
     return ptr;
 }

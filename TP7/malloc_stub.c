@@ -38,7 +38,7 @@ void *malloc(size_t s) {
     void *result;
 
     init();
-    dprintf("Allocation de %lu octets...", (unsigned long) s);
+    dprintf("Allocation de %lu octets...\n", (unsigned long) s);
     result = mem_alloc(s);
     if (!result)
         dprintf(" Alloc FAILED !!");

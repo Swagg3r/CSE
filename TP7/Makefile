@@ -5,7 +5,7 @@ CC=gcc
 #HOST32= -m32
 
 CPPFLAGS= -I.
-CFLAGS= $(HOST32) -Wall -Werror -std=c99 -g -fPIC -DMEMORY_SIZE=128000
+CFLAGS= $(HOST32) -Wall -Werror -std=c99 -g -fPIC -DMEMORY_SIZE=128000000
 LDFLAGS= $(HOST32)
 
 
@@ -43,6 +43,12 @@ libmalloc.so: malloc_stub.o mem.o
 
 test_ls: libmalloc.so
 	LD_PRELOAD=./libmalloc.so ls
+
+test_gcc: libmalloc.so
+	LD_PRELOAD=./libmalloc.so gcc -o hello hello.c
+
+test_make: libmalloc.so
+	LD_PRELOAD=./libmalloc.so make
 
 leak_test: malloc_stub.o mem.o
 
