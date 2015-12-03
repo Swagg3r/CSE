@@ -6,6 +6,7 @@
 #define METASIZE sizeof(size_t)
 #define align(val) (((val) + ALIGNEMENT-1) &~ (ALIGNEMENT-1))
 #define DEBUG 0
+#define DEBORDEMENT 0xD34DB33F
 
 typedef struct fb { /* fb pour free block */
   size_t size ;
@@ -125,8 +126,6 @@ void* mem_alloc(size_t size_alloc) {
     //décale ptr_alloc sur la premiere case de l'espace réservé (=valeur de retour)
     ptr_alloc = (fb*) ((void*) ptr_alloc + METASIZE);
 
-    if(DEBUG) { printf("=======================================\n"); }
-
     accumulation += size_alloc;
     mem_show(calculation);
 
@@ -139,8 +138,6 @@ void mem_free(void* zone) {
 
     pthread_mutex_lock(&mutex);
 
-    if(DEBUG) { printf("=============== mem_free =============\n"); }
-
     //décale pointeur vers l'arrière pour récupérer les métadonnées
     fb* ptr_free = (fb*) (zone - METASIZE);
     ptr_free->size = *((size_t*) ptr_free);
@@ -149,7 +146,6 @@ void mem_free(void* zone) {
 	    //cas 1 : ptr_free < ptr_init = ptr_free devient le nouveau ptr_init
         if((fb*) ((void*) ptr_free + ptr_free->size) == ptr_init) {
             //cas 1.1 : adjacent à la premiere zone libre = fusion (amont)
-            if(DEBUG) { printf("a\n"); }
             fb* ptr_tmp = ptr_init;
             ptr_init = (fb*) ((void*) ptr_init - ptr_free->size);
             ptr_init->size = ptr_free->size + ptr_tmp->size;
@@ -157,7 +153,6 @@ void mem_free(void* zone) {
         } else {
             //cas 1.2 : entouré de zones occupées
             //on remplace le chainage (ptr_init) par (ptr_free(nouveau init)---->ptr_init(ancien init))
-            if(DEBUG) { printf("b\n"); }
             fb* ptr_tmp = ptr_init;
             ptr_init = ptr_free;
             ptr_init->next = ptr_tmp;
@@ -167,7 +162,6 @@ void mem_free(void* zone) {
       	//cas 2 : ptr_free > ptr_init = mise à jour du chainage à partir de ptr_init
         if (ptr_init == NULL) {
           	//cas 2.1 : ptr_init == NULL donc la mémoire est pleine : la zone libérée devient le nouveau ptr_init
-            if(DEBUG) { printf("c\n"); }
             ptr_init = ptr_free;
             ptr_init->size = ptr_free->size;
             ptr_init->next = NULL;
@@ -182,26 +176,17 @@ void mem_free(void* zone) {
             
             if ((fb*) ((void*) ptr_prec + ptr_prec->size) != ptr_free && (fb*) ((void*) ptr_suivant - ptr_free->size) != ptr_free) {
           		//cas 2.2.1 : entouré de zones occupées : on remplace le chainage (ptr_prec---->ptr_suivant) par (ptr_prec---->ptr_free---->ptr_suivant)
-          		if(DEBUG) { printf("d\n"); }
                 ptr_prec->next = ptr_free;
                 ptr_free->next = ptr_suivant;
             } else {
       		    if ((fb*) ((void*) ptr_prec + ptr_prec->size) == ptr_free) {
       			   //cas 2.2.2 : zone libre juste avant la zone à libérer(fusion aval)
-          			if(DEBUG) {
-          				printf("e\n");
-          				printf("ptr_prec->size = %d\n", (int) ptr_prec->size);
-          			}
           			fb* ptr_tmp = ptr_free;
           			ptr_free = ptr_prec;
           			ptr_free->size += ptr_tmp->size;
           		}
       		    if ((fb*) ((void*) ptr_free + ptr_free->size) == ptr_suivant) {
           			//cas 2.2.3 : zone libre juste après la zone à libérer(fusion amont)
-          			if(DEBUG) { 
-          				printf("f\n");
-          				printf("ptr_suivant->size = %d\n", (int) ptr_suivant->size);
-          			}
           			fb* ptr_tmp = ptr_suivant;
           			ptr_suivant = (fb*) ((void*) ptr_suivant - ptr_free->size);
           			ptr_suivant->size = ptr_tmp->size + ptr_free->size;
@@ -216,9 +201,6 @@ void mem_free(void* zone) {
             }
         }
     }
-
-    if(DEBUG) { printf("=======================================\n"); }
-
     mem_show(calculation);
 
     pthread_mutex_unlock(&mutex);
