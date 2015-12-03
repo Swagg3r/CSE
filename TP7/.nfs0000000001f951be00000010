@@ -1,6 +1,15 @@
 //Antoine Thebaud & Aurelien Monnet-Paquet
 #include <mem.h>
-#include <pthread.h>
+// #include <mem.h>
+// #include "errno.h"
+// #include <stdio.h>
+// #include <unistd.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <sys/types.h>
+// #include <sys/stat.h>
+// #include <fcntl.h>
+// #include <stdarg.h>
 
 #define ALIGNEMENT sizeof(void*)
 #define METASIZE sizeof(size_t)
@@ -20,9 +29,6 @@ void* ptr_first;
 void* ptr_last; 
 //stratégie
 mem_fit_function_t* active_fit_fonction;
-
-//mutex
-pthread_mutex_t mutex;
 
 //variables pour calculation()
 int fragmentation; // taille jusqu'au dernier bloc occupé
@@ -45,13 +51,10 @@ void mem_init(char* mem, size_t taille) {
 
 void* mem_alloc(size_t size_alloc) {
 
-  pthread_mutex_lock(&mutex);
-
   if(DEBUG) { printf("=============== mem_alloc =============\n"); }
   
   if (size_alloc == 0) {
     printf("opération invalide (size=0)\n");
-    pthread_mutex_unlock(&mutex);
     return NULL;
   }
 
@@ -137,17 +140,12 @@ void* mem_alloc(size_t size_alloc) {
 
   if(DEBUG) { printf("=======================================\n"); }
 
-  accumulation += size_alloc;
   mem_show(calculation);
-
-  pthread_mutex_unlock(&mutex);
 
   return ptr_alloc;
 }
 
 void mem_free(void* zone) {
-
-  pthread_mutex_lock(&mutex);
 
   if(DEBUG) { printf("=============== mem_free =============\n"); }
 
@@ -164,76 +162,72 @@ void mem_free(void* zone) {
       ptr_init = (fb*) ((void*) ptr_init - ptr_free->size);
       ptr_init->size = ptr_free->size + ptr_tmp->size;
       ptr_init->next = ptr_tmp->next;
-      } else {
-        //cas 1.2 : entouré de zones occupées
-        //on remplace le chainage (ptr_init) par (ptr_free(nouveau init)---->ptr_init(ancien init))
-        if(DEBUG) { printf("b\n"); }
-        fb* ptr_tmp = ptr_init;
-        ptr_init = ptr_free;
-        ptr_init->next = ptr_tmp;
-        ptr_init->size = ptr_free->size;
+    } else {
+      //cas 1.2 : entouré de zones occupées
+      //on remplace le chainage (ptr_init) par (ptr_free(nouveau init)---->ptr_init(ancien init))
+      if(DEBUG) { printf("b\n"); }
+      fb* ptr_tmp = ptr_init;
+      ptr_init = ptr_free;
+      ptr_init->next = ptr_tmp;
+      ptr_init->size = ptr_free->size;
+    }
+  } else if (ptr_free > ptr_init) {
+	//cas 2 : ptr_free > ptr_init = mise à jour du chainage à partir de ptr_init
+    if (ptr_init == NULL){
+	  //cas 2.1 : ptr_init == NULL donc la mémoire est pleine : la zone libérée devient le nouveau ptr_init
+      if(DEBUG) { printf("c\n"); }
+      ptr_init = ptr_free;
+      ptr_init->size = ptr_free->size;
+      ptr_init->next = NULL;
+    }
+    else {
+	  //cas 2.2 : tous les autres cas
+	  
+      //récupére les pointeurs des zones libres "encadrant" la zone à libérer
+      fb* ptr_prec = (fb*) ptr_init;
+      while (ptr_prec->next != NULL && ptr_prec->next < ptr_free) {
+        ptr_prec = ptr_prec->next;
       }
-    } else if (ptr_free > ptr_init) {
-  	//cas 2 : ptr_free > ptr_init = mise à jour du chainage à partir de ptr_init
-      if (ptr_init == NULL){
-  	  //cas 2.1 : ptr_init == NULL donc la mémoire est pleine : la zone libérée devient le nouveau ptr_init
-        if(DEBUG) { printf("c\n"); }
-        ptr_init = ptr_free;
-        ptr_init->size = ptr_free->size;
-        ptr_init->next = NULL;
-      }
-      else {
-  	  //cas 2.2 : tous les autres cas
-  	  
-        //récupére les pointeurs des zones libres "encadrant" la zone à libérer
-        fb* ptr_prec = (fb*) ptr_init;
-        while (ptr_prec->next != NULL && ptr_prec->next < ptr_free) {
-          ptr_prec = ptr_prec->next;
-        }
-        fb* ptr_suivant = ptr_prec->next;
-        
-        if ((fb*) ((void*) ptr_prec + ptr_prec->size) != ptr_free && (fb*) ((void*) ptr_suivant - ptr_free->size) != ptr_free) {
-  		//cas 2.2.1 : entouré de zones occupées : on remplace le chainage (ptr_prec---->ptr_suivant) par (ptr_prec---->ptr_free---->ptr_suivant)
-  		if(DEBUG) { printf("d\n"); }
-          ptr_prec->next = ptr_free;
-          ptr_free->next = ptr_suivant;
-  	  } else {
-  		  if ((fb*) ((void*) ptr_prec + ptr_prec->size) == ptr_free) {
-  			//cas 2.2.2 : zone libre juste avant la zone à libérer(fusion aval)
-  			if(DEBUG) {
-  				printf("e\n");
-  				printf("ptr_prec->size = %d\n", (int) ptr_prec->size);
-  			}
-  			fb* ptr_tmp = ptr_free;
-  			ptr_free = ptr_prec;
-  			ptr_free->size += ptr_tmp->size;
-  		  }
-  		  if ((fb*) ((void*) ptr_free + ptr_free->size) == ptr_suivant) {
-  			//cas 2.2.3 : zone libre juste après la zone à libérer(fusion amont)
-  			if(DEBUG) { 
-  				printf("f\n");
-  				printf("ptr_suivant->size = %d\n", (int) ptr_suivant->size);
-  			}
-  			fb* ptr_tmp = ptr_suivant;
-  			ptr_suivant = (fb*) ((void*) ptr_suivant - ptr_free->size);
-  			ptr_suivant->size = ptr_tmp->size + ptr_free->size;
-  			ptr_suivant->next = ptr_tmp->next;
-  			if (ptr_prec == ptr_suivant) {
-  				//cas particulier pour ptr_prec = ptr_init
-  				ptr_prec = ptr_suivant;
-  			} else {
-  				ptr_prec->next = ptr_suivant;
-  			}
-  		  }
-  	  }
+      fb* ptr_suivant = ptr_prec->next;
+      
+      if ((fb*) ((void*) ptr_prec + ptr_prec->size) != ptr_free && (fb*) ((void*) ptr_suivant - ptr_free->size) != ptr_free) {
+		//cas 2.2.1 : entouré de zones occupées : on remplace le chainage (ptr_prec---->ptr_suivant) par (ptr_prec---->ptr_free---->ptr_suivant)
+		if(DEBUG) { printf("d\n"); }
+        ptr_prec->next = ptr_free;
+        ptr_free->next = ptr_suivant;
+	  } else {
+		  if ((fb*) ((void*) ptr_prec + ptr_prec->size) == ptr_free) {
+			//cas 2.2.2 : zone libre juste avant la zone à libérer(fusion aval)
+			if(DEBUG) {
+				printf("e\n");
+				printf("ptr_prec->size = %d\n", (int) ptr_prec->size);
+			}
+			fb* ptr_tmp = ptr_free;
+			ptr_free = ptr_prec;
+			ptr_free->size += ptr_tmp->size;
+		  }
+		  if ((fb*) ((void*) ptr_free + ptr_free->size) == ptr_suivant) {
+			//cas 2.2.3 : zone libre juste après la zone à libérer(fusion amont)
+			if(DEBUG) { 
+				printf("f\n");
+				printf("ptr_suivant->size = %d\n", (int) ptr_suivant->size);
+			}
+			fb* ptr_tmp = ptr_suivant;
+			ptr_suivant = (fb*) ((void*) ptr_suivant - ptr_free->size);
+			ptr_suivant->size = ptr_tmp->size + ptr_free->size;
+			ptr_suivant->next = ptr_tmp->next;
+			if (ptr_prec == ptr_suivant) {
+				//cas particulier pour ptr_prec = ptr_init
+				ptr_prec = ptr_suivant;
+			} else {
+				ptr_prec->next = ptr_suivant;
+			}
+		  }
+	  }
     }
   }
 
-    if(DEBUG) { printf("=======================================\n"); }
-
-    mem_show(calculation);
-
-    pthread_mutex_unlock(&mutex);
+  if(DEBUG) { printf("=======================================\n"); }
 }
 
 size_t mem_get_size(void* zone) {
@@ -254,22 +248,23 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
   while ((void*) ptr < ptr_last) {
 
     if ((void*) ptr == ptr_zl) {
-      print((void*) ptr, ptr->size, 1);//zone libre
+      print((void*) ptr, ptr->size, 1);
       ptr_zl = ptr_zl->next;
       ptr = (fb*) ((void*) ptr + ptr->size);
     } else {
-      print((void*) ptr, *((size_t*)ptr), 0);//zone occupée 
+      print((void*) ptr, *((size_t*)ptr), 0);
       ptr = (fb*) ((void*) ptr + *((size_t*)ptr));
     }
   }
 
   //ecritation dans le fichier : WORKS
   FILE* f = fopen("stats.txt","a");
-  print_int(f, accumulation);
-  fwrite("\t", 1, 1, f);
-  print_int(f, occupation);
-  fwrite("\t", 1, 1, f);
+  fwrite("fragmentation = ", 1, 16, f);
   print_int(f, fragmentation);
+  fwrite("/ occupation = ", 1, 15, f);
+  print_int(f, occupation);
+  fwrite("/ accumulation = ", 1, 17, f);
+  print_int(f, accumulation);
   fwrite("\n", 1, 1, f);
   fclose(f);
 }
@@ -326,26 +321,29 @@ fb* mem_fit_worst(fb* ptr, size_t size) {
 
 void calculation(void* zone, size_t size, int free) {
 
-    //fragmentation : on comptabilise toutes les zones SAUF la derniere si elle est libre
-    if (zone + size != (void*) ptr_last || !free) {
-        fragmentation += size;
-    }
-    if (!free) {
-        occupation += size;
-    }
+  //fragmentation : on comptabilise toutes les zones SAUF la derniere si elle est libre
+  if (zone + size != (void*) ptr_last || !free) {
+    fragmentation += size;
+  }
+  if (!free) {
+    occupation += size;
+  } else {
+    occupation -= size;
+  }
+  accumulation += size;
 }
 
 void print_int(FILE* f, int nb) {
-    if (nb < 0){
-        fwrite("-", 1, 1, f);
-        nb *= -1;
-    }
-    if (nb > 9){
-        print_int(f, nb / 10);
-        print_int(f, nb % 10);
-    }
-    else{
-        nb += '0';
-        fwrite(&nb, 1, 1, f);
-    }
+  if (nb < 0){
+    fwrite("-", 1, 1, f);
+    nb *= -1;
+  }
+  if (nb > 9){
+    print_int(f, nb / 10);
+    print_int(f, nb % 10);
+  }
+  else{
+    nb += '0';
+    fwrite(&nb, 1, 1, f);
+  }
 }
