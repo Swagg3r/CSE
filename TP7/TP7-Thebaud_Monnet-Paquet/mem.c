@@ -249,7 +249,7 @@ void mem_show(void (*print)(void* zone, size_t size, int free)) {
     static int in_mem_show = 0;
     if (in_mem_show == 0) {
         in_mem_show = 1;
-        //ecritation dans le fichier : WORKS
+        //ecritation dans le fichier
         FILE* f = fopen("stats.txt","a");
         print_int(f, accumulation);
         fwrite("\t", 1, 1, f);
@@ -313,6 +313,7 @@ void calculation(void* zone, size_t size, int free) {
     }
 }
 
+//Fonction trouvée sur internet permettant d'ecrire caractere par caractere un nombre dans un fichier.
 void print_int(FILE* f, int nb) {
     if (nb < 0){
         fwrite("-", 1, 1, f);

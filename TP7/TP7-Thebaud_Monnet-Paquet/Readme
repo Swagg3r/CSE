@@ -1,0 +1,10 @@
+Make permet de compiler, lancer le test de base, un test personnalisé et de clean.
+
+Notre allocateur peut être utilisé pour les commandes "ls -l", "gcc -version" et "make".
+Pour cela lancer les commandes :
+	make test_ls
+	make test_gcc
+	make test_make
+
+Le fichier stats.txt contient le resultat de la commande "ls". Ce fichier nous a servit a construire le graphique
+présent dans notre rapport.

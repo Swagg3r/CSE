@@ -1,1 +1,0 @@
-.memtest.deps memtest.o: memtest.c mem.h

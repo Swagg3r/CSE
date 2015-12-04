@@ -14,6 +14,7 @@ LDFLAGS= $(HOST32)
 all: memshell memtest memcustomtest
 	./memtest
 	./memcustomtest
+	make clean
 	
 
 # dépendences des binaires
@@ -42,13 +43,12 @@ libmalloc.so: malloc_stub.o mem.o
 	$(CC) -shared -Wl,-soname,$@ $^ -o $@
 
 test_ls: libmalloc.so
-	LD_PRELOAD=./libmalloc.so ls
+	LD_PRELOAD=./libmalloc.so ls -l
 
 test_gcc: libmalloc.so
-	LD_PRELOAD=./libmalloc.so gcc -o hello hello.c
+	LD_PRELOAD=./libmalloc.so gcc --version
 
 test_make: libmalloc.so
 	LD_PRELOAD=./libmalloc.so make
 
 leak_test: malloc_stub.o mem.o
-
